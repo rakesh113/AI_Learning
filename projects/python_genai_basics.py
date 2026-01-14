@@ -1,10 +1,47 @@
+import re
+from typing import List
+
+
 def normalize_text(text: str) -> str:
     """
-    Clean and normalize text for LLM processing.
+    Normalize text for LLM processing.
+    - Trim whitespace
+    - Collapse multiple spaces
+    - Remove non-printable characters
     """
-    return text.strip().lower()
+    text = text.strip()
+    text = re.sub(r"\s+", " ", text)
+    text = "".join(ch for ch in text if ch.isprintable())
+    return text
+
+
+def split_sentences(text: str) -> List[str]:
+    """
+    Split text into sentences in a simple, deterministic way.
+    """
+    return [s.strip() for s in text.split(".") if s.strip()]
+
+def build_prompt(system: str, user: str) -> str:
+    """
+    Build a structured prompt with explicit roles.
+    """
+    system = normalize_text(system)
+    user = normalize_text(user)
+
+    return f"""
+    SYSTEM:
+    {system}
+
+    USER:
+    {user}
+    """
+
 
 
 if __name__ == "__main__":
-    sample = "  Hello AI Agent  "
-    print(normalize_text(sample))
+    system_msg = "You are a precise AI assistant."
+    user_msg = "   Explain what an AI agent is.   "
+
+    prompt = build_prompt(system_msg, user_msg)
+    print(prompt)
+
